@@ -1,0 +1,64 @@
+# ==============================================================================
+# Git & Version Control
+# ==============================================================================
+.git
+.gitignore
+
+# ==============================================================================
+# Dependencies & Build Artifacts (Force Docker to install/build clean inside container)
+# ==============================================================================
+/vendor/
+/node_modules/
+/public/build/
+/public/hot
+
+# ==============================================================================
+# Environment & Local Configuration
+# ==============================================================================
+.env
+.env.*
+!.env.example
+
+# ==============================================================================
+# Laravel Logs, Temporary Files & Local Cache
+# ==============================================================================
+/storage/logs/*
+!/storage/logs/.gitignore
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/testing/*
+/bootstrap/cache/*.php
+
+# ==============================================================================
+# Testing & Code Quality Tools Cache
+# ==============================================================================
+.phpunit.result.cache
+.pesttracker
+.phpstan.cache
+resultCache.php
+.rector.cache
+/coverage/
+.php-cs-fixer.cache
+
+# ==============================================================================
+# Docker Files & Local Infrastructure Data
+# ==============================================================================
+Dockerfile*
+docker-compose*
+.docker/
+/docker/postgres/data/
+/docker/redis/data/
+
+# ==============================================================================
+# API Collections & IDE / OS Metadata
+# ==============================================================================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+README.md
+CHANGELOG.md
