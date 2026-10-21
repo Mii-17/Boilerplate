@@ -1,27 +1,72 @@
-*.log
-.DS_Store
-.env
-.env.backup
-.env.production
-.phpactor.json
-.phpunit.result.cache
-/.codex
-/.cursor/
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
-/auth.json
-/node_modules
-/public/build
-/public/fonts-manifest.dev.json
+# ==============================================================================
+# Composer Cache & Dependencies
+# ==============================================================================
+/.composer/
+/vendor/
+
+# ==============================================================================
+# Node & Build Artifacts
+# ==============================================================================
+/node_modules/
+/public/build/
 /public/hot
 /public/storage
-/storage/*.key
-/storage/pail
-/vendor
-_ide_helper.php
+/public/fonts-manifest.dev.json
+
+# ==============================================================================
+# Environment & Local Configuration
+# ==============================================================================
+.env
+.env.*
+!.env.example
+/auth.json
 Homestead.json
 Homestead.yaml
+
+# ==============================================================================
+# Laravel Logs & Temporary Files
+# ==============================================================================
+*.log
+/storage/logs/*
+!/storage/logs/.gitignore
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/testing/*
+/storage/*.key
+/storage/pail
+/bootstrap/cache/*.php
+!/bootstrap/cache/.gitignore
+
+# ==============================================================================
+# Testing, Code Quality & IDE Helper Cache
+# ==============================================================================
+.phpunit.result.cache
+.phpunit.cache
+.pesttracker
+.phpstan.cache
+resultCache.php
+.rector.cache
+/coverage/
+.php-cs-fixer.cache
+.phpactor.json
+_ide_helper.php
+_ide_helper_models.php
+.phpstorm.meta.php
+
+# ==============================================================================
+# IDE, Editor & OS Metadata
+# ==============================================================================
+/.idea
+/.vscode/*
+!/.vscode/settings.json
+!/.vscode/extensions.json
+/.zed
+/.nova
+/.codex
+/.cursor/
+*.swp
+*.swo
+*~
+.DS_Store
 Thumbs.db

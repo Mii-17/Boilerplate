@@ -5,6 +5,11 @@
 .gitignore
 
 # ==============================================================================
+# Composer Cache & Dependencies
+# ==============================================================================
+.composer/
+
+# ==============================================================================
 # Dependencies & Build Artifacts (Force Docker to install/build clean inside container)
 # ==============================================================================
 /vendor/
@@ -13,14 +18,13 @@
 /public/hot
 
 # ==============================================================================
-# Environment & Local Configuration
+# Environment Files
 # ==============================================================================
 .env
 .env.*
-!.env.example
 
 # ==============================================================================
-# Laravel Logs, Temporary Files & Local Cache
+# Laravel Logs, Temporary Files & Framework Cache
 # ==============================================================================
 /storage/logs/*
 !/storage/logs/.gitignore
@@ -31,7 +35,7 @@
 /bootstrap/cache/*.php
 
 # ==============================================================================
-# Testing & Code Quality Tools Cache
+# Testing & Static Analysis Tool Caches
 # ==============================================================================
 .phpunit.result.cache
 .pesttracker
@@ -42,23 +46,21 @@ resultCache.php
 .php-cs-fixer.cache
 
 # ==============================================================================
-# Docker Files & Local Infrastructure Data
+# Docker Configurations & Volumes Data
 # ==============================================================================
-Dockerfile*
-docker-compose*
-.docker/
 /docker/postgres/data/
 /docker/redis/data/
+docker-compose*.yml
+Dockerfile*
 
 # ==============================================================================
-# API Collections & IDE / OS Metadata
+# IDEs, Bruno Collections & OS Junk
 # ==============================================================================
 .idea/
 .vscode/
+.cursor/
 *.swp
 *.swo
 *~
 .DS_Store
 Thumbs.db
-README.md
-CHANGELOG.md
