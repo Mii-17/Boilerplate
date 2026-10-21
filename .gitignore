@@ -1,60 +1,27 @@
-# ==============================================================================
-# Dependencies & Package Managers
-# ==============================================================================
-/vendor/
-/node_modules/
-/public/build/
-/public/hot
-
-# ==============================================================================
-# Environment & Local Configuration
-# ==============================================================================
+*.log
+.DS_Store
 .env
 .env.backup
 .env.production
-.env.local
-.env.*.local
-
-# ==============================================================================
-# Laravel Framework (Storage, Logs & Cache)
-# ==============================================================================
+.phpactor.json
+.phpunit.result.cache
+/.codex
+/.cursor/
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/fonts-manifest.dev.json
+/public/hot
+/public/storage
 /storage/*.key
-/storage/app/public/*
-!/storage/app/public/.gitignore
-/storage/framework/cache/*
-/storage/framework/sessions/*
-/storage/framework/testing/*
-/storage/framework/views/*
-/storage/logs/*
-!/storage/logs/.gitignore
-bootstrap/cache/*.php
-
-# ==============================================================================
-# Testing & Code Quality Tools (Pest, PHPStan, Rector, Coverage)
-# ==============================================================================
-/.phpunit.result.cache
-/.pesttracker
-/.phpstan.cache
-/resultCache.php
-/.rector.cache
-/coverage/
-/.php-cs-fixer.cache
-
-# ==============================================================================
-# Containerization & Infrastructure (Docker & Local Volumes)
-# ==============================================================================
-docker-compose.override.yml
-.docker/data/
-/docker/postgres/data/
-/docker/redis/data/
-
-# ==============================================================================
-# IDEs, Editors & OS Metadata
-# ==============================================================================
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.DS_Store
+/storage/pail
+/vendor
+_ide_helper.php
+Homestead.json
+Homestead.yaml
 Thumbs.db
