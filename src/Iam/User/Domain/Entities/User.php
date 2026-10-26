@@ -12,6 +12,7 @@ use Src\Iam\User\Domain\Events\UserVerified;
 use Src\Iam\User\Domain\ValueObjects\PasswordHash;
 use Src\Iam\User\Domain\ValueObjects\RolesCollection;
 use Src\Iam\User\Domain\ValueObjects\UserId;
+use Src\Iam\User\Domain\ValueObjects\VerificationToken;
 use Src\Shared\Domain\Aggregate\RecordsDomainEvents;
 use Src\Shared\Domain\ValueObjects\Email;
 
@@ -25,7 +26,8 @@ class User
         private Email $email,
         private PasswordHash $passwordHash,
         private RolesCollection $roles,
-        private bool $isVerified = false
+        private bool $isVerified = false,
+        private ?VerificationToken $verificationToken = null
     ) {}
 
     public static function register(
@@ -33,9 +35,10 @@ class User
         string $name,
         Email $email,
         PasswordHash $passwordHash,
+        VerificationToken $verificationToken,
         RolesCollection $roles = new RolesCollection([Role::USER])
     ): self {
-        $user = new self($id, $name, $email, $passwordHash, $roles, false);
+        $user = new self($id, $name, $email, $passwordHash, $roles, false, $verificationToken);
 
         $user->recordThat(new UserRegistered(
             userId: $id,
@@ -47,13 +50,22 @@ class User
         return $user;
     }
 
-    public function verify(): void
+    public function verify(VerificationToken $providedToken): void
     {
         if ($this->isVerified) {
             throw new DomainException('User is already verified.');
         }
 
+        if (! $this->verificationToken instanceof VerificationToken || ! $this->verificationToken->equals($providedToken)) {
+            throw new DomainException('Invalid verification token.');
+        }
+
+        if ($this->verificationToken->isExpired()) {
+            throw new DomainException('Verification token has expired.');
+        }
+
         $this->isVerified = true;
+        $this->verificationToken = null;
 
         $this->recordThat(new UserVerified(
             userId: $this->id,
@@ -98,6 +110,11 @@ class User
     public function isVerified(): bool
     {
         return $this->isVerified;
+    }
+
+    public function verificationToken(): ?VerificationToken
+    {
+        return $this->verificationToken;
     }
 
     public function roles(): RolesCollection

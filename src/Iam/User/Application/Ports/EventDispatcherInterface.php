@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Application\Common\Ports;
+namespace Src\Iam\User\Application\Ports;
+
+use Src\Shared\Domain\Bus\Event\DomainEvent;
 
 interface EventDispatcherInterface
 {
     /**
-     * @param  array<object>  $events
+     * @param  array<DomainEvent>  $events
      */
     public function dispatchAll(array $events): void;
 }
