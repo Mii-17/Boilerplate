@@ -26,8 +26,8 @@ function createRegisterUserUseCaseContext(): array
 
     $useCase = new RegisterUserUseCase(
         userRepository: $repository,
-        hasher: $hasher,
         eventDispatcher: $eventDispatcher,
+        hasher: $hasher,
         transactionManager: $transactionManager
     );
 

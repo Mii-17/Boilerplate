@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Tests\Doubles\Events;
 
 use Src\Iam\User\Application\Ports\EventDispatcherInterface;
-use Src\Shared\Domain\Bus\Event\DomainEvent;
+use Src\Shared\Domain\Bus\Event\DomainEventInterface;
 
 final class FakeEventDispatcher implements EventDispatcherInterface
 {
-    /** @var list<DomainEvent> */
+    /** @var list<DomainEventInterface> */
     private array $dispatchedEvents = [];
 
     /**
-     * @param  list<DomainEvent>  $events
+     * @param  list<DomainEventInterface>  $events
      */
     public function dispatchAll(array $events): void
     {
@@ -23,7 +23,7 @@ final class FakeEventDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @return list<DomainEvent>
+     * @return list<DomainEventInterface>
      */
     public function dispatchedEvents(): array
     {
@@ -32,6 +32,6 @@ final class FakeEventDispatcher implements EventDispatcherInterface
 
     public function hasDispatched(string $eventClass): bool
     {
-        return array_any($this->dispatchedEvents, fn (DomainEvent $event): bool => $event instanceof $eventClass);
+        return array_any($this->dispatchedEvents, fn (DomainEventInterface $event): bool => $event instanceof $eventClass);
     }
 }
