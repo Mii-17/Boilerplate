@@ -16,19 +16,33 @@ use Src\Iam\User\Domain\ValueObjects\PlainPassword;
 use Src\Iam\User\Domain\ValueObjects\RolesCollection;
 use Src\Iam\User\Domain\ValueObjects\UserId;
 use Src\Iam\User\Domain\ValueObjects\VerificationToken;
+use Src\Shared\Application\Ports\IdempotencyCheckerInterface;
 use Src\Shared\Domain\ValueObjects\Email;
 
 final readonly class RegisterUserUseCase
 {
+    /**
+     * @param  IdempotencyCheckerInterface<User>  $idempotencyChecker
+     */
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private EventDispatcherInterface $eventDispatcher,
         private HasherInterface $hasher,
         private TransactionManagerInterface $transactionManager,
+        private IdempotencyCheckerInterface $idempotencyChecker,
     ) {}
 
     public function execute(RegisterUserCommand $command): User
     {
+        if ($command->idempotencyKey !== null) {
+            if ($this->idempotencyChecker->has($command->idempotencyKey)) {
+                $cachedUser = $this->idempotencyChecker->get($command->idempotencyKey);
+                assert($cachedUser instanceof User);
+
+                return $cachedUser;
+            }
+        }
+
         $email = Email::fromString($command->email);
 
         if ($this->userRepository->existsByEmail($email)) {
@@ -58,6 +72,10 @@ final readonly class RegisterUserUseCase
             $this->userRepository->save($user);
             $this->eventDispatcher->dispatchAll($user->pullDomainEvents());
         });
+
+        if ($command->idempotencyKey !== null) {
+            $this->idempotencyChecker->set($command->idempotencyKey, $user);
+        }
 
         return $user;
     }
