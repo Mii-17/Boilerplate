@@ -94,7 +94,7 @@ test('throws exception when email is already registered', function (): void {
 });
 
 test('prevents duplicate execution and returns cached result when idempotency key is reused', function (): void {
-    [$useCase, $repository, $eventDispatcher, $idempotencyChecker] = createRegisterUserUseCaseContext();
+    [$useCase, $repository, $eventDispatcher] = createRegisterUserUseCaseContext();
 
     $command = new RegisterUserCommand(
         name: 'John Doe',
@@ -105,9 +105,9 @@ test('prevents duplicate execution and returns cached result when idempotency ke
     );
 
     $userFirst = $useCase->execute($command);
-
     $userSecond = $useCase->execute($command);
 
     expect($userFirst->id()->value())->toBe($userSecond->id()->value())
+        ->and($repository->count())->toBe(1)
         ->and($eventDispatcher->dispatchedEvents())->toHaveCount(1);
 });

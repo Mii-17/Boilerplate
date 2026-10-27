@@ -69,4 +69,9 @@ final class InMemoryUserRepository implements UserRepositoryInterface
             $this->tokenIndex[$token->value()] = $userId;
         }
     }
+
+    public function count(): int
+    {
+        return count($this->users);
+    }
 }
