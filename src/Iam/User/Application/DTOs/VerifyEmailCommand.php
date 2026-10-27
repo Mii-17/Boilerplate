@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Src\Iam\User\Application\DTOs;
 
-final readonly class VerifyUserEmailCommand
+final readonly class VerifyEmailCommand
 {
     public function __construct(
         public string $userId,
-        public string $url,
+        public string $token,
         public ?string $idempotencyKey = null
     ) {}
 }

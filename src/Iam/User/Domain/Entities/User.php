@@ -9,6 +9,8 @@ use Src\Iam\User\Domain\Enums\Role;
 use Src\Iam\User\Domain\Events\UnverifiedUserChangedEmail;
 use Src\Iam\User\Domain\Events\UserRegistered;
 use Src\Iam\User\Domain\Events\UserVerified;
+use Src\Iam\User\Domain\Exceptions\UserAlreadyVerifiedException;
+use Src\Iam\User\Domain\ValueObjects\Exceptions\InvalidVerificationTokenException;
 use Src\Iam\User\Domain\ValueObjects\PasswordHash;
 use Src\Iam\User\Domain\ValueObjects\RolesCollection;
 use Src\Iam\User\Domain\ValueObjects\UserId;
@@ -53,15 +55,15 @@ class User
     public function verify(VerificationToken $providedToken): void
     {
         if ($this->isVerified) {
-            throw new DomainException('User is already verified.');
+            throw new UserAlreadyVerifiedException($this->id);
         }
 
         if (! $this->verificationToken instanceof VerificationToken || ! $this->verificationToken->equals($providedToken)) {
-            throw new DomainException('Invalid verification token.');
+            throw InvalidVerificationTokenException::becauseInvalid();
         }
 
         if ($this->verificationToken->isExpired()) {
-            throw new DomainException('Verification token has expired.');
+            throw InvalidVerificationTokenException::becauseExpired();
         }
 
         $this->isVerified = true;
