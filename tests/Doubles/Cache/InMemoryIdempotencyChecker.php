@@ -4,37 +4,48 @@ declare(strict_types=1);
 
 namespace Tests\Doubles\Cache;
 
-use Src\Shared\Application\Ports\IdempotencyCheckerInterface;
-
-/**
- * @template T
- *
- * @implements IdempotencyCheckerInterface<T>
- */
-final class InMemoryIdempotencyChecker implements IdempotencyCheckerInterface
+final class InMemoryIdempotencyChecker
 {
-    /** @var array<string, T> */
+    /**
+     * @var array<string, array{value: mixed, expiresAt: int}>
+     */
     private array $storage = [];
 
     public function has(string $key): bool
     {
-        return isset($this->storage[$key]);
+        return $this->get($key) !== null;
     }
 
-    /**
-     * @return T|null
-     */
     public function get(string $key): mixed
     {
-        return $this->storage[$key] ?? null;
+        if (! isset($this->storage[$key])) {
+            return null;
+        }
+
+        if ($this->storage[$key]['expiresAt'] <= time()) {
+            unset($this->storage[$key]);
+
+            return null;
+        }
+
+        return $this->storage[$key]['value'];
     }
 
-    /**
-     * @param  T  $value
-     */
-    public function set(string $key, mixed $value, int $ttlSeconds = 3600): void
-    {
-        $this->storage[$key] = $value;
+    public function set(
+        string $key,
+        mixed $value,
+        int $ttlSeconds = 3600,
+    ): void {
+        if ($ttlSeconds <= 0) {
+            unset($this->storage[$key]);
+
+            return;
+        }
+
+        $this->storage[$key] = [
+            'value' => $value,
+            'expiresAt' => time() + $ttlSeconds,
+        ];
     }
 
     public function clear(): void
