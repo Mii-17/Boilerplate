@@ -14,6 +14,5 @@ final readonly class RegisterUserCommand
         public string $email,
         public string $plainPassword,
         public array $roles = ['USER'],
-        public ?string $idempotencyKey = null
     ) {}
 }

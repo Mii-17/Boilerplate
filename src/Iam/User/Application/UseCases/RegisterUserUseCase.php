@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Src\Iam\User\Application\UseCases;
 
 use Src\Iam\User\Application\DTOs\RegisterUserCommand;
+use Src\Iam\User\Application\DTOs\RegisterUserResponse;
 use Src\Iam\User\Application\Ports\EventDispatcherInterface;
 use Src\Iam\User\Application\Ports\HasherInterface;
 use Src\Iam\User\Application\Ports\TransactionManagerInterface;
@@ -14,69 +15,48 @@ use Src\Iam\User\Domain\Exceptions\UserAlreadyExistsException;
 use Src\Iam\User\Domain\Repositories\UserRepositoryInterface;
 use Src\Iam\User\Domain\ValueObjects\PlainPassword;
 use Src\Iam\User\Domain\ValueObjects\RolesCollection;
-use Src\Iam\User\Domain\ValueObjects\UserId;
-use Src\Iam\User\Domain\ValueObjects\VerificationToken;
-use Src\Shared\Application\Ports\IdempotencyCheckerInterface;
 use Src\Shared\Domain\ValueObjects\Email;
 
 final readonly class RegisterUserUseCase
 {
-    /**
-     * @param  IdempotencyCheckerInterface<User>  $idempotencyChecker
-     */
     public function __construct(
         private UserRepositoryInterface $userRepository,
-        private EventDispatcherInterface $eventDispatcher,
         private HasherInterface $hasher,
         private TransactionManagerInterface $transactionManager,
-        private IdempotencyCheckerInterface $idempotencyChecker,
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
-    public function execute(RegisterUserCommand $command): User
-    {
-        if ($command->idempotencyKey !== null) {
-            if ($this->idempotencyChecker->has($command->idempotencyKey)) {
-                $cachedUser = $this->idempotencyChecker->get($command->idempotencyKey);
-                assert($cachedUser instanceof User);
-
-                return $cachedUser;
-            }
-        }
-
+    public function execute(
+        RegisterUserCommand $command,
+    ): RegisterUserResponse {
         $email = Email::fromString($command->email);
 
         if ($this->userRepository->existsByEmail($email)) {
             throw new UserAlreadyExistsException($email);
         }
 
-        $userId = UserId::generate();
-        $passwordHash = $this->hasher->hash(PlainPassword::fromString($command->plainPassword));
-        $verificationToken = VerificationToken::generate();
-
-        $rolesArray = array_map(
-            Role::from(...),
-            $command->roles
+        $passwordHash = $this->hasher->hash(
+            PlainPassword::fromString($command->plainPassword),
         );
-        $rolesCollection = new RolesCollection($rolesArray);
 
         $user = User::register(
-            id: $userId,
             name: $command->name,
             email: $email,
             passwordHash: $passwordHash,
-            verificationToken: $verificationToken,
-            roles: $rolesCollection
+            roles: new RolesCollection([Role::USER]),
         );
 
-        $this->transactionManager->transaction(function () use ($user): void {
-            $this->userRepository->save($user);
-            $this->eventDispatcher->dispatchAll($user->pullDomainEvents());
-        });
+        $this->transactionManager->transaction(
+            function () use ($user): void {
+                $this->userRepository->save($user);
+            },
+        );
 
-        if ($command->idempotencyKey !== null) {
-            $this->idempotencyChecker->set($command->idempotencyKey, $user);
-        }
+        // La transacción ya debe haberse confirmado.
+        $this->eventDispatcher->dispatchAll(
+            $user->pullDomainEvents(),
+        );
 
-        return $user;
+        return RegisterUserResponse::fromEntity($user);
     }
 }
