@@ -33,13 +33,16 @@ class User
     ) {}
 
     public static function register(
-        UserId $id,
         string $name,
         Email $email,
         PasswordHash $passwordHash,
-        VerificationToken $verificationToken,
-        RolesCollection $roles = new RolesCollection([Role::USER])
+        RolesCollection $roles = new RolesCollection([Role::USER]),
+        ?UserId $id = null,
+        ?VerificationToken $verificationToken = null,
     ): self {
+        $id ??= UserId::generate();
+        $verificationToken ??= VerificationToken::generate();
+
         $user = new self($id, $name, $email, $passwordHash, $roles, false, $verificationToken);
 
         $user->recordThat(new UserRegistered(
