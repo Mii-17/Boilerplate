@@ -55,13 +55,17 @@ class User
         return $user;
     }
 
-    public function verify(VerificationToken $providedToken): void
+    public function verify(string $providedToken): void
     {
         if ($this->isVerified) {
             throw new UserAlreadyVerifiedException($this->id);
         }
 
-        if (! $this->verificationToken instanceof VerificationToken || ! $this->verificationToken->equals($providedToken)) {
+        if (! $this->verificationToken instanceof VerificationToken) {
+            throw InvalidVerificationTokenException::becauseInvalid();
+        }
+
+        if ($this->verificationToken->value() !== $providedToken) {
             throw InvalidVerificationTokenException::becauseInvalid();
         }
 
@@ -74,7 +78,7 @@ class User
 
         $this->recordThat(new UserVerified(
             userId: $this->id,
-            email: $this->email
+            email: $this->email,
         ));
     }
 

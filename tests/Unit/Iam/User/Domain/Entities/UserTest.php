@@ -7,6 +7,7 @@ use Src\Iam\User\Domain\Enums\Role;
 use Src\Iam\User\Domain\Events\UnverifiedUserChangedEmail;
 use Src\Iam\User\Domain\Events\UserRegistered;
 use Src\Iam\User\Domain\Events\UserVerified;
+use Src\Iam\User\Domain\ValueObjects\Exceptions\InvalidVerificationTokenException;
 use Src\Iam\User\Domain\ValueObjects\PasswordHash;
 use Src\Iam\User\Domain\ValueObjects\PlainPassword;
 use Src\Iam\User\Domain\ValueObjects\RolesCollection;
@@ -28,12 +29,12 @@ function createTestUser(
     $token = $verificationToken ?? VerificationToken::generate();
 
     $user = User::register(
-        id: $id ?? UserId::generate(),
         name: $name,
         email: $email ?? Email::fromString('test@example.com'),
         passwordHash: $passwordHash ?? PasswordHash::fromPlainText(PlainPassword::fromString('Password123!')),
-        verificationToken: $token,
-        roles: $roles ?? new RolesCollection([Role::USER])
+        roles: $roles ?? new RolesCollection([Role::USER]),
+        id: $id ?? UserId::generate(),
+        verificationToken: $token
     );
 
     return [$user, $token];
@@ -62,7 +63,7 @@ test('can verify an unverified user and record verification event', function ():
     [$user, $token] = createTestUser();
     $user->pullDomainEvents();
 
-    $user->verify($token);
+    $user->verify($token->value());
 
     expect($user->isVerified())->toBeTrue()
         ->and($user->verificationToken())->toBeNull();
@@ -84,4 +85,22 @@ test('can change unverified email and record event', function (): void {
     $events = $user->pullDomainEvents();
     expect($events)->toHaveCount(1)
         ->and($events[0])->toBeInstanceOf(UnverifiedUserChangedEmail::class);
+});
+
+test('cannot verify a user with an expired token', function (): void {
+    $expiredToken = new VerificationToken(
+        'expired-test-token',
+        new DateTimeImmutable('-1 hour'),
+    );
+
+    [$user] = createTestUser(verificationToken: $expiredToken);
+
+    $user->pullDomainEvents();
+
+    expect(fn () => $user->verify($expiredToken->value()))
+        ->toThrow(InvalidVerificationTokenException::class);
+
+    expect($user->isVerified())->toBeFalse()
+        ->and($user->verificationToken())->not->toBeNull()
+        ->and($user->pullDomainEvents())->toBeEmpty();
 });
