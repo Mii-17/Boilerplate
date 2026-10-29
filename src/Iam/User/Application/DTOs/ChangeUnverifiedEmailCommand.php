@@ -9,6 +9,5 @@ final readonly class ChangeUnverifiedEmailCommand
     public function __construct(
         public string $id,
         public string $newEmail,
-        public ?string $idempotencyKey = null
     ) {}
 }

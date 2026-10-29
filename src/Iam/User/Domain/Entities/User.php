@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Src\Iam\User\Domain\Entities;
 
-use DomainException;
 use Src\Iam\User\Domain\Enums\Role;
 use Src\Iam\User\Domain\Events\UnverifiedUserChangedEmail;
 use Src\Iam\User\Domain\Events\UserRegistered;
@@ -85,7 +84,7 @@ class User
     public function changeUnverifiedEmail(Email $newEmail): void
     {
         if ($this->isVerified) {
-            throw new DomainException('Cannot change email of a verified user directly.');
+            throw new UserAlreadyVerifiedException($this->id);
         }
 
         $this->email = $newEmail;
