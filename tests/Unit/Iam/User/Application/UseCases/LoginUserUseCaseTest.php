@@ -7,7 +7,6 @@ use Src\Iam\User\Application\DTOs\RegisterUserCommand;
 use Src\Iam\User\Application\UseCases\LoginUserUseCase;
 use Src\Iam\User\Application\UseCases\RegisterUserUseCase;
 use Src\Iam\User\Domain\Entities\User;
-use Src\Iam\User\Domain\Enums\Role;
 use Src\Iam\User\Domain\Exceptions\InvalidCredentialsException;
 use Src\Iam\User\Domain\Exceptions\UserNotVerifiedException;
 use Src\Iam\User\Domain\ValueObjects\PasswordHash;
@@ -59,7 +58,6 @@ function createUser(
             name: $name,
             email: $email,
             plainPassword: $password,
-            roles: [Role::USER->value],
         ),
     );
 

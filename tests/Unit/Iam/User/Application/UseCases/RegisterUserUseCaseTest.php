@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Src\Iam\User\Application\DTOs\RegisterUserCommand;
 use Src\Iam\User\Application\UseCases\RegisterUserUseCase;
 use Src\Iam\User\Domain\Entities\User;
-use Src\Iam\User\Domain\Enums\Role;
 use Src\Iam\User\Domain\Events\UserRegistered;
 use Src\Iam\User\Domain\Exceptions\UserAlreadyExistsException;
 use Src\Shared\Domain\ValueObjects\Email;
@@ -40,13 +39,11 @@ test('registers a user successfully and dispatches a domain event', function ():
     $name = 'John Doe';
     $email = 'user@example.com';
     $userPassword = 'Secret123!';
-    $userRoles = [Role::USER->value];
 
     $command = new RegisterUserCommand(
         name: $name,
         email: $email,
         plainPassword: $userPassword,
-        roles: $userRoles
     );
 
     $useCase->execute($command);
@@ -57,7 +54,6 @@ test('registers a user successfully and dispatches a domain event', function ():
     assert($savedUser instanceof User);
 
     expect($savedUser->name())->toBe($name)
-        ->and($savedUser->hasRole(Role::USER))->toBeTrue()
         ->and($eventDispatcher->dispatchedEvents())->toHaveCount(1)
         ->and($eventDispatcher->hasDispatched(UserRegistered::class))->toBeTrue();
 });
@@ -67,20 +63,17 @@ test('throws exception when email is already registered', function (): void {
 
     $email = 'user@example.com';
     $userPassword = 'Secret123!';
-    $userRoles = [Role::USER->value];
 
     $command1 = new RegisterUserCommand(
         name: 'User One',
         email: $email,
         plainPassword: $userPassword,
-        roles: $userRoles
     );
 
     $command2 = new RegisterUserCommand(
         name: 'User Two',
         email: $email,
         plainPassword: $userPassword,
-        roles: $userRoles
     );
 
     $useCase->execute($command1);

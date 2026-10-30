@@ -10,11 +10,9 @@ use Src\Iam\User\Application\Ports\EventDispatcherInterface;
 use Src\Iam\User\Application\Ports\HasherInterface;
 use Src\Iam\User\Application\Ports\TransactionManagerInterface;
 use Src\Iam\User\Domain\Entities\User;
-use Src\Iam\User\Domain\Enums\Role;
 use Src\Iam\User\Domain\Exceptions\UserAlreadyExistsException;
 use Src\Iam\User\Domain\Repositories\UserRepositoryInterface;
 use Src\Iam\User\Domain\ValueObjects\PlainPassword;
-use Src\Iam\User\Domain\ValueObjects\RolesCollection;
 use Src\Shared\Domain\ValueObjects\Email;
 
 final readonly class RegisterUserUseCase
@@ -43,7 +41,6 @@ final readonly class RegisterUserUseCase
             name: $command->name,
             email: $email,
             passwordHash: $passwordHash,
-            roles: new RolesCollection([Role::USER]),
         );
 
         $this->transactionManager->transaction(
@@ -52,7 +49,6 @@ final readonly class RegisterUserUseCase
             },
         );
 
-        // La transacción ya debe haberse confirmado.
         $this->eventDispatcher->dispatchAll(
             $user->pullDomainEvents(),
         );

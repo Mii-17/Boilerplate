@@ -7,7 +7,6 @@ use Src\Iam\User\Application\DTOs\RegisterUserCommand;
 use Src\Iam\User\Application\UseCases\ChangeUnverifiedEmailUseCase;
 use Src\Iam\User\Application\UseCases\RegisterUserUseCase;
 use Src\Iam\User\Domain\Entities\User;
-use Src\Iam\User\Domain\Enums\Role;
 use Src\Iam\User\Domain\Events\UnverifiedUserChangedEmail;
 use Src\Iam\User\Domain\Exceptions\UserAlreadyVerifiedException;
 use Src\Iam\User\Domain\Exceptions\UserEmailAlreadyTakenException;
@@ -58,9 +57,8 @@ test('unverified user can change email and dispatch a domain event', function ()
     $userName = 'user';
     $userEmail = 'user@example.com';
     $userPassword = 'Secret123!';
-    $userRole = [Role::USER->value];
 
-    $registerUserCommand = new RegisterUserCommand($userName, $userEmail, $userPassword, $userRole);
+    $registerUserCommand = new RegisterUserCommand($userName, $userEmail, $userPassword);
 
     $registerUseCase->execute($registerUserCommand);
 
@@ -88,9 +86,8 @@ test('verified user can not change email', function (): void {
     $userName = 'user';
     $userEmail = 'user@example.com';
     $userPassword = 'Secret123!';
-    $userRole = [Role::USER->value];
 
-    $registerUserCommand = new RegisterUserCommand($userName, $userEmail, $userPassword, $userRole);
+    $registerUserCommand = new RegisterUserCommand($userName, $userEmail, $userPassword);
 
     $registerUseCase->execute($registerUserCommand);
 
@@ -118,11 +115,11 @@ test('user can not change email to an existing email', function (): void {
     [$changeEmailUseCase, $repository, $eventDispatcher, $registerUseCase] = createChangeUnverifiedEmailUsesCasesContext();
 
     $registerUseCase->execute(
-        new RegisterUserCommand('Existing User', 'taken@example.com', 'Secret123!', [Role::USER->value])
+        new RegisterUserCommand('Existing User', 'taken@example.com', 'Secret123!')
     );
 
     $registerUseCase->execute(
-        new RegisterUserCommand('User Two', 'user2@example.com', 'Secret123!', [Role::USER->value])
+        new RegisterUserCommand('User Two', 'user2@example.com', 'Secret123!')
     );
 
     $savedUser = $repository->findByEmail(Email::fromString('user2@example.com'));
@@ -143,7 +140,7 @@ test('user can not change email to an invalid email', function (): void {
     [$changeEmailUseCase, $repository,, $registerUseCase] = createChangeUnverifiedEmailUsesCasesContext();
 
     $registerUseCase->execute(
-        new RegisterUserCommand('User', 'user@example.com', 'Secret123!', [Role::USER->value])
+        new RegisterUserCommand('User', 'user@example.com', 'Secret123!')
     );
 
     $savedUser = $repository->findByEmail(Email::fromString('user@example.com'));
@@ -175,7 +172,6 @@ test('allows changing to the same email', function (): void {
             'User',
             'user@example.com',
             'Secret123!',
-            [Role::USER->value],
         ),
     );
 
