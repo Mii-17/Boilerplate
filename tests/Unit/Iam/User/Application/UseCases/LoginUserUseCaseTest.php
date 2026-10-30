@@ -10,6 +10,7 @@ use Src\Iam\User\Domain\Entities\User;
 use Src\Iam\User\Domain\Enums\Role;
 use Src\Iam\User\Domain\Exceptions\InvalidCredentialsException;
 use Src\Iam\User\Domain\Exceptions\UserNotVerifiedException;
+use Src\Iam\User\Domain\ValueObjects\PasswordHash;
 use Src\Iam\User\Domain\ValueObjects\VerificationToken;
 use Src\Shared\Domain\ValueObjects\Email;
 use Tests\Doubles\Crypt\FakeHasher;
@@ -24,10 +25,12 @@ function createLoginUserUseCaseContext(): array
 {
     $repository = new InMemoryUserRepository;
     $hasher = new FakeHasher;
+    $dummyPasswordHash = PasswordHash::fromHash('hashed_dummy_password');
 
     $useCase = new LoginUserUseCase(
         userRepository: $repository,
         hasher: $hasher,
+        dummyPasswordHash: $dummyPasswordHash,
     );
 
     $eventDispatcher = new FakeEventDispatcher;

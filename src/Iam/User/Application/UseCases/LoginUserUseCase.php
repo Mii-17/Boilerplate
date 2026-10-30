@@ -11,6 +11,7 @@ use Src\Iam\User\Domain\Entities\User;
 use Src\Iam\User\Domain\Exceptions\InvalidCredentialsException;
 use Src\Iam\User\Domain\Exceptions\UserNotVerifiedException;
 use Src\Iam\User\Domain\Repositories\UserRepositoryInterface;
+use Src\Iam\User\Domain\ValueObjects\PasswordHash;
 use Src\Iam\User\Domain\ValueObjects\PlainPassword;
 use Src\Shared\Domain\ValueObjects\Email;
 
@@ -19,6 +20,7 @@ final readonly class LoginUserUseCase
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private HasherInterface $hasher,
+        private PasswordHash $dummyPasswordHash,
     ) {}
 
     public function execute(
@@ -28,15 +30,17 @@ final readonly class LoginUserUseCase
 
         $user = $this->userRepository->findByEmail($email);
 
-        if (! $user instanceof User) {
-            throw new InvalidCredentialsException;
-        }
-
         $plainPassword = PlainPassword::fromString(
             $command->password,
         );
 
-        if (! $this->hasher->verify($plainPassword, $user->passwordHash())) {
+        $hash = $user instanceof User
+            ? $user->passwordHash()
+            : $this->dummyPasswordHash;
+
+        $passwordIsValid = $this->hasher->verify($plainPassword, $hash);
+
+        if (! $user instanceof User || ! $passwordIsValid) {
             throw new InvalidCredentialsException;
         }
 
