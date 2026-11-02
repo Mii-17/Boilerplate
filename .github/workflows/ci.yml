@@ -21,6 +21,7 @@ jobs:
           POSTGRES_DB: laravel_test
           POSTGRES_USER: laravel
           POSTGRES_PASSWORD: secretpassword
+
         ports:
           - 5432:5432
         options: >-
@@ -55,6 +56,7 @@ jobs:
       DB_PASSWORD: secretpassword
       CACHE_STORE: redis
       REDIS_HOST: 127.0.0.1
+      IAM_DUMMY_PASSWORD_HASH: '$2y$12$bOSYHnGprZiuoPamWuFrnOlZmI39EhRvs3V3bWlK/Myu7ifh9EPzq'
 
     steps:
       - name: Checkout Code

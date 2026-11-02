@@ -14,19 +14,11 @@ final class UserServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $hash = config('iam.dummy_password_hash');
-
-        if (! is_string($hash)) {
-            throw new \InvalidArgumentException(
-                'The iam.dummy_password_hash configuration must be a string.'
-            );
-        }
-
         $this->app->when(LoginUserUseCase::class)
             ->needs(PasswordHash::class)
             ->give(
                 fn (): PasswordHash => PasswordHash::fromHash(
-                    $hash
+                    config()->string('iam.dummy_password_hash')
                 )
             );
 
