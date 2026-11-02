@@ -15,7 +15,7 @@ use Src\Iam\User\Domain\ValueObjects\VerificationToken;
 use Src\Shared\Domain\ValueObjects\Email;
 use Tests\Doubles\Crypt\FakeHasher;
 use Tests\Doubles\Events\FakeEventDispatcher;
-use Tests\Doubles\Persistence\DummyTransactionManager;
+use Tests\Doubles\Persistence\SpyTransactionManager;
 use Tests\Doubles\Repositories\InMemoryUserRepository;
 
 /**
@@ -23,7 +23,8 @@ use Tests\Doubles\Repositories\InMemoryUserRepository;
  *     0: RegisterUserUseCase,
  *     1: InMemoryUserRepository,
  *     2: FakeEventDispatcher,
- *     3: VerifyEmailUseCase
+ *     3: VerifyEmailUseCase,
+ *     4: SpyTransactionManager
  * }
  */
 function createUsesCaseContext(): array
@@ -31,7 +32,7 @@ function createUsesCaseContext(): array
     $repository = new InMemoryUserRepository;
     $eventDispatcher = new FakeEventDispatcher;
     $hasher = new FakeHasher;
-    $transactionManager = new DummyTransactionManager;
+    $transactionManager = new SpyTransactionManager;
 
     $registerUseCase = new RegisterUserUseCase(
         userRepository: $repository,
@@ -46,7 +47,7 @@ function createUsesCaseContext(): array
         eventDispatcher: $eventDispatcher,
     );
 
-    return [$registerUseCase, $repository, $eventDispatcher, $verifyUseCase];
+    return [$registerUseCase, $repository, $eventDispatcher, $verifyUseCase, $transactionManager];
 }
 
 /**
@@ -75,7 +76,7 @@ function registerPendingUser(
 }
 
 test('user can verify email with a valid token', function (): void {
-    [$registerUseCase, $repository, $eventDispatcher, $verifyUseCase] = createUsesCaseContext();
+    [$registerUseCase, $repository, $eventDispatcher, $verifyUseCase, $transactionManager] = createUsesCaseContext();
 
     $user = registerPendingUser($registerUseCase, $repository);
     $token = $user->verificationToken();
@@ -94,6 +95,7 @@ test('user can verify email with a valid token', function (): void {
     assert($updatedUser instanceof User);
 
     expect($updatedUser->isVerified())->toBeTrue()
+        ->and($transactionManager->wrappedOperationCount)->toBe(2)
         ->and($updatedUser->verificationToken())->toBeNull()
         ->and($response->isVerified)->toBeTrue()
         ->and($eventDispatcher->hasDispatched(UserVerified::class))->toBeTrue();

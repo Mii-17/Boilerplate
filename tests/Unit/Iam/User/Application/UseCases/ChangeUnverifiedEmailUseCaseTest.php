@@ -17,7 +17,7 @@ use Src\Shared\Domain\ValueObjects\Email;
 use Src\Shared\Domain\ValueObjects\Exceptions\InvalidEmailException;
 use Tests\Doubles\Crypt\FakeHasher;
 use Tests\Doubles\Events\FakeEventDispatcher;
-use Tests\Doubles\Persistence\DummyTransactionManager;
+use Tests\Doubles\Persistence\SpyTransactionManager;
 use Tests\Doubles\Repositories\InMemoryUserRepository;
 
 /**
@@ -25,7 +25,8 @@ use Tests\Doubles\Repositories\InMemoryUserRepository;
  *     0: ChangeUnverifiedEmailUseCase,
  *     1: InMemoryUserRepository,
  *     2: FakeEventDispatcher,
- *     3: RegisterUserUseCase
+ *     3: RegisterUserUseCase,
+ *     4: SpyTransactionManager
  * }
  */
 function createChangeUnverifiedEmailUsesCasesContext(): array
@@ -33,7 +34,7 @@ function createChangeUnverifiedEmailUsesCasesContext(): array
     $repository = new InMemoryUserRepository;
     $eventDispatcher = new FakeEventDispatcher;
     $hasher = new FakeHasher;
-    $transactionManager = new DummyTransactionManager;
+    $transactionManager = new SpyTransactionManager;
 
     $changeEmailUseCase = new ChangeUnverifiedEmailUseCase(
         userRepository: $repository,
@@ -48,11 +49,11 @@ function createChangeUnverifiedEmailUsesCasesContext(): array
         eventDispatcher: $eventDispatcher,
     );
 
-    return [$changeEmailUseCase, $repository, $eventDispatcher, $registerUseCase];
+    return [$changeEmailUseCase, $repository, $eventDispatcher, $registerUseCase, $transactionManager];
 }
 
 test('unverified user can change email and dispatch a domain event', function (): void {
-    [$changeEmailUseCase, $repository, $eventDispatcher, $registerUseCase] = createChangeUnverifiedEmailUsesCasesContext();
+    [$changeEmailUseCase, $repository, $eventDispatcher, $registerUseCase, $transactionManager] = createChangeUnverifiedEmailUsesCasesContext();
 
     $userName = 'user';
     $userEmail = 'user@example.com';
@@ -77,6 +78,7 @@ test('unverified user can change email and dispatch a domain event', function ()
     expect($updatedUser)->toBeInstanceOf(User::class);
 
     expect($response->email)->toBe('new@example.com')
+        ->and($transactionManager->wrappedOperationCount)->toBe(2)
         ->and($eventDispatcher->hasDispatched(UnverifiedUserChangedEmail::class))->toBeTrue();
 });
 
