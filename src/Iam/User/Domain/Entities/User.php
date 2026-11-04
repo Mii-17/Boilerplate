@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Src\Iam\User\Domain\Entities;
 
+use DateTimeImmutable;
 use Src\Iam\User\Domain\Enums\Role;
 use Src\Iam\User\Domain\Events\UnverifiedUserChangedEmail;
 use Src\Iam\User\Domain\Events\UserRegistered;
@@ -27,7 +28,7 @@ class User
         private Email $email,
         private PasswordHash $passwordHash,
         private RolesCollection $roles,
-        private bool $isVerified = false,
+        private ?DateTimeImmutable $verifiedAt = null,
         private ?VerificationToken $verificationToken = null
     ) {}
 
@@ -42,7 +43,7 @@ class User
         $id ??= UserId::generate();
         $verificationToken ??= VerificationToken::generate();
 
-        $user = new self($id, $name, $email, $passwordHash, $roles, false, $verificationToken);
+        $user = new self($id, $name, $email, $passwordHash, $roles, null, $verificationToken);
 
         $user->recordThat(new UserRegistered(
             userId: $id,
@@ -54,9 +55,21 @@ class User
         return $user;
     }
 
+    public static function reconstitute(
+        UserId $id,
+        string $name,
+        Email $email,
+        PasswordHash $passwordHash,
+        RolesCollection $roles,
+        ?DateTimeImmutable $verifiedAt,
+        ?VerificationToken $verificationToken,
+    ): self {
+        return new self($id, $name, $email, $passwordHash, $roles, $verifiedAt, $verificationToken);
+    }
+
     public function verify(string $providedToken): void
     {
-        if ($this->isVerified) {
+        if ($this->isVerified()) {
             throw new UserAlreadyVerifiedException($this->id);
         }
 
@@ -72,7 +85,7 @@ class User
             throw InvalidVerificationTokenException::becauseExpired();
         }
 
-        $this->isVerified = true;
+        $this->verifiedAt = new DateTimeImmutable;
         $this->verificationToken = null;
 
         $this->recordThat(new UserVerified(
@@ -83,7 +96,7 @@ class User
 
     public function changeUnverifiedEmail(Email $newEmail): void
     {
-        if ($this->isVerified) {
+        if ($this->isVerified()) {
             throw new UserAlreadyVerifiedException($this->id);
         }
 
@@ -117,7 +130,12 @@ class User
 
     public function isVerified(): bool
     {
-        return $this->isVerified;
+        return $this->verifiedAt instanceof DateTimeImmutable;
+    }
+
+    public function verifiedAt(): ?DateTimeImmutable
+    {
+        return $this->verifiedAt;
     }
 
     public function verificationToken(): ?VerificationToken

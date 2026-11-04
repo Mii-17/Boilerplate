@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Src\Iam\User\Domain\Enums\Role;
+use Src\Iam\User\Infrastructure\Models\UserModel;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,11 +18,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        UserModel::factory()->withRole([Role::ADMIN])->create([
+            'name' => 'Admin',
+            'email' => 'admin@example.com',
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        UserModel::factory()->unverified()->create([
+            'name' => 'Pending User',
+            'email' => 'pending@example.com',
         ]);
     }
 }
