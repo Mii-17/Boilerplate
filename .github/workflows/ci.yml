@@ -96,10 +96,9 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
-      - name: Run Database Migrations
-        run: php artisan migrate --force
+      - name: Run Database Migrations & Seeders
+        run: php artisan migrate:fresh --seed --force
 
       - name: Run Quality Checks & Tests
         run: |
           composer check
-          ./vendor/bin/pest
