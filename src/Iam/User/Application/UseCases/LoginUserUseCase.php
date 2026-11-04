@@ -11,8 +11,8 @@ use Src\Iam\User\Domain\Entities\User;
 use Src\Iam\User\Domain\Exceptions\InvalidCredentialsException;
 use Src\Iam\User\Domain\Exceptions\UserNotVerifiedException;
 use Src\Iam\User\Domain\Repositories\UserRepositoryInterface;
+use Src\Iam\User\Domain\ValueObjects\PasswordAttempt;
 use Src\Iam\User\Domain\ValueObjects\PasswordHash;
-use Src\Iam\User\Domain\ValueObjects\PlainPassword;
 use Src\Shared\Domain\ValueObjects\Email;
 
 final readonly class LoginUserUseCase
@@ -30,17 +30,14 @@ final readonly class LoginUserUseCase
 
         $user = $this->userRepository->findByEmail($email);
 
-        $plainPassword = PlainPassword::fromString(
-            $command->password,
-        );
-
         $hash = $user instanceof User
             ? $user->passwordHash()
             : $this->dummyPasswordHash;
 
-        $passwordIsValid = $this->hasher->verify($plainPassword, $hash);
+        $attempt = PasswordAttempt::fromString($command->password);
 
-        if (! $user instanceof User || ! $passwordIsValid) {
+        $valid = $this->hasher->verify($attempt, $hash);
+        if (! $user instanceof User || ! $valid) {
             throw new InvalidCredentialsException;
         }
 
