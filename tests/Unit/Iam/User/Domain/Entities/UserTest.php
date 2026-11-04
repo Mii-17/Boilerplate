@@ -9,7 +9,6 @@ use Src\Iam\User\Domain\Events\UserRegistered;
 use Src\Iam\User\Domain\Events\UserVerified;
 use Src\Iam\User\Domain\ValueObjects\Exceptions\InvalidVerificationTokenException;
 use Src\Iam\User\Domain\ValueObjects\PasswordHash;
-use Src\Iam\User\Domain\ValueObjects\PlainPassword;
 use Src\Iam\User\Domain\ValueObjects\RolesCollection;
 use Src\Iam\User\Domain\ValueObjects\UserId;
 use Src\Iam\User\Domain\ValueObjects\VerificationToken;
@@ -31,7 +30,7 @@ function createTestUser(
     $user = User::register(
         name: $name,
         email: $email ?? Email::fromString('test@example.com'),
-        passwordHash: $passwordHash ?? PasswordHash::fromPlainText(PlainPassword::fromString('Password123!')),
+        passwordHash: $passwordHash ?? PasswordHash::fromHash('hashed_password'),
         roles: $roles ?? new RolesCollection([Role::USER]),
         id: $id ?? UserId::generate(),
         verificationToken: $token
