@@ -15,17 +15,8 @@ class DDDStructure extends Command
 
     public function handle(): int
     {
-        $contextArg = $this->argument('context');
-        $entityArg = $this->argument('entity');
-
-        if (! is_string($contextArg) || ! is_string($entityArg)) {
-            $this->error('The context and entity arguments must be valid strings.');
-
-            return self::FAILURE;
-        }
-
-        $context = ucfirst(strtolower($contextArg));
-        $entity = ucfirst(strtolower($entityArg));
+        $context = ucfirst(strtolower($this->argument('context')));
+        $entity = ucfirst(strtolower($this->argument('entity')));
 
         $basePath = base_path("src/{$context}/{$entity}");
 
