@@ -7,8 +7,10 @@ namespace Src\Iam\User\Infrastructure\Providers;
 use Illuminate\Support\ServiceProvider;
 use Src\Iam\User\Application\Ports\TransactionManagerInterface;
 use Src\Iam\User\Application\UseCases\LoginUserUseCase;
+use Src\Iam\User\Domain\Repositories\UserRepositoryInterface;
 use Src\Iam\User\Domain\ValueObjects\PasswordHash;
 use Src\Iam\User\Infrastructure\Persistence\DatabaseTransactionManager;
+use Src\Iam\User\Infrastructure\Persistence\EloquentUserRepository;
 
 final class UserServiceProvider extends ServiceProvider
 {
@@ -22,7 +24,7 @@ final class UserServiceProvider extends ServiceProvider
                 )
             );
 
-        // $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
+        $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
 
         $this->app->bind(
             TransactionManagerInterface::class,
