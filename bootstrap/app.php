@@ -6,6 +6,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Src\Shared\Infrastructure\Http\Middleware\TraceCorrelationIdMiddleware;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,10 +16,20 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->prepend(TraceCorrelationIdMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request): bool => $request->is('api/*') || $request->expectsJson(),
         );
+
+        $exceptions->respond(function (Response $response): Response {
+            $correlationId = request()->attributes->get('correlation_id');
+
+            if (is_string($correlationId)) {
+                $response->headers->set('X-Correlation-ID', $correlationId);
+            }
+
+            return $response;
+        });
     })->create();
