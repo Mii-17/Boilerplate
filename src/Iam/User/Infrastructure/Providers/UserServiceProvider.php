@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace Src\Iam\User\Infrastructure\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Src\Iam\User\Application\Ports\EventDispatcherInterface;
+use Src\Iam\User\Application\Ports\HasherInterface;
 use Src\Iam\User\Application\Ports\TransactionManagerInterface;
 use Src\Iam\User\Application\UseCases\LoginUserUseCase;
 use Src\Iam\User\Domain\Repositories\UserRepositoryInterface;
 use Src\Iam\User\Domain\ValueObjects\PasswordHash;
+use Src\Iam\User\Infrastructure\Bus\LaravelEventDispatcherAdapter;
+use Src\Iam\User\Infrastructure\Crypt\LaravelHasherAdapter;
 use Src\Iam\User\Infrastructure\Persistence\DatabaseTransactionManager;
 use Src\Iam\User\Infrastructure\Persistence\EloquentUserRepository;
 
@@ -29,6 +33,15 @@ final class UserServiceProvider extends ServiceProvider
         $this->app->bind(
             TransactionManagerInterface::class,
             DatabaseTransactionManager::class,
+        );
+
+        $this->app->bind(
+            HasherInterface::class,
+            LaravelHasherAdapter::class,
+        );
+        $this->app->bind(
+            EventDispatcherInterface::class,
+            LaravelEventDispatcherAdapter::class,
         );
     }
 
