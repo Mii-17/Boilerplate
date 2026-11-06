@@ -1,3 +1,5 @@
+name: boilerplate_dev
+
 services:
   app:
     build:
@@ -67,6 +69,23 @@ services:
     ports:
       - "8025:8025"
       - "1025:1025"
+    networks:
+      - boilerplate_network
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: boilerplate_worker
+    restart: unless-stopped
+    command: php artisan queue:work --sleep=3 --tries=3
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    user: "${WWWUSER:-1000}:${WWWGROUP:-1000}"
     networks:
       - boilerplate_network
 
