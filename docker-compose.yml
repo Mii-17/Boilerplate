@@ -91,8 +91,11 @@ services:
 
 networks:
   boilerplate_network:
+    name: boilerplate_network
     driver: bridge
 
 volumes:
   pgdata:
+    name: boilerplate_pgdata
   redisdata:
+    name: boilerplate_redisdata
