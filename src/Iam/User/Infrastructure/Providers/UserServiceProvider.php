@@ -54,8 +54,7 @@ final class UserServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
 
-        Event::listen(UserRegistered::class, SendEmailVerificationNotification::class);
-        Event::listen(UnverifiedUserChangedEmail::class, SendEmailVerificationNotification::class);
+        Event::listen([UserRegistered::class, UnverifiedUserChangedEmail::class], SendEmailVerificationNotification::class);
         Event::listen(UserRegistered::class, SendWelcomeNotification::class);
     }
 }
