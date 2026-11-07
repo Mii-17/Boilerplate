@@ -12,6 +12,12 @@ abstract class TestCase extends BaseTestCase
     {
         $app = parent::createApplication();
 
+        if ($app->configurationIsCached()) {
+            throw new \RuntimeException(
+                'The configuration is cached. Run [php artisan optimize:clear] before running the test suite.'
+            );
+        }
+
         $connection = $app['config']->get('database.default');
 
         if (! is_string($connection)) {
