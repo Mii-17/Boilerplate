@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace Src\Iam\User\Infrastructure\Providers;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Src\Iam\User\Application\Ports\EventDispatcherInterface;
 use Src\Iam\User\Application\Ports\HasherInterface;
 use Src\Iam\User\Application\Ports\TransactionManagerInterface;
 use Src\Iam\User\Application\UseCases\LoginUserUseCase;
+use Src\Iam\User\Domain\Events\UnverifiedUserChangedEmail;
+use Src\Iam\User\Domain\Events\UserRegistered;
 use Src\Iam\User\Domain\Repositories\UserRepositoryInterface;
 use Src\Iam\User\Domain\ValueObjects\PasswordHash;
 use Src\Iam\User\Infrastructure\Bus\LaravelEventDispatcherAdapter;
 use Src\Iam\User\Infrastructure\Crypt\LaravelHasherAdapter;
+use Src\Iam\User\Infrastructure\Listeners\SendEmailVerificationNotification;
 use Src\Iam\User\Infrastructure\Persistence\DatabaseTransactionManager;
 use Src\Iam\User\Infrastructure\Persistence\EloquentUserRepository;
 
@@ -47,6 +51,9 @@ final class UserServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        //
+        $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
+
+        Event::listen(UserRegistered::class, SendEmailVerificationNotification::class);
+        Event::listen(UnverifiedUserChangedEmail::class, SendEmailVerificationNotification::class);
     }
 }
