@@ -7,13 +7,27 @@ use Illuminate\Support\Facades\Notification;
 use Src\Iam\User\Domain\Enums\Role;
 use Src\Iam\User\Domain\Events\UnverifiedUserChangedEmail;
 use Src\Iam\User\Domain\Events\UserRegistered;
+use Src\Iam\User\Domain\Events\UserVerified;
 use Src\Iam\User\Domain\ValueObjects\RolesCollection;
 use Src\Iam\User\Domain\ValueObjects\UserId;
 use Src\Iam\User\Infrastructure\Models\UserModel;
 use Src\Iam\User\Infrastructure\Notifications\WelcomeNotification;
 use Src\Shared\Domain\ValueObjects\Email;
 
-test('sends the welcome notification when a user registers', function (): void {
+test('sends the welcome notification when a user verifies their email', function (): void {
+    Notification::fake();
+
+    $user = UserModel::factory()->create();
+
+    Event::dispatch(new UserVerified(
+        UserId::fromString($user->id),
+        Email::fromString($user->email),
+    ));
+
+    Notification::assertSentTo($user, WelcomeNotification::class);
+});
+
+test('does not send the welcome notification when a user registers', function (): void {
     Notification::fake();
 
     $user = UserModel::factory()->unverified()->create();
@@ -25,7 +39,7 @@ test('sends the welcome notification when a user registers', function (): void {
         new RolesCollection([Role::USER]),
     ));
 
-    Notification::assertSentTo($user, WelcomeNotification::class);
+    Notification::assertNotSentTo($user, WelcomeNotification::class);
 });
 
 test('does not send the welcome notification when an unverified user changes email', function (): void {
@@ -44,11 +58,9 @@ test('does not send the welcome notification when an unverified user changes ema
 test('does not send the welcome notification when the user does not exist', function (): void {
     Notification::fake();
 
-    Event::dispatch(new UserRegistered(
+    Event::dispatch(new UserVerified(
         UserId::generate(),
-        'Missing',
         Email::fromString('missing@example.com'),
-        new RolesCollection([Role::USER]),
     ));
 
     Notification::assertNothingSent();

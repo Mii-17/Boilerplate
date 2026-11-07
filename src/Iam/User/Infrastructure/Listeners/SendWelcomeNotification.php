@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Src\Iam\User\Infrastructure\Listeners;
 
-use Src\Iam\User\Domain\Events\UserRegistered;
+use Src\Iam\User\Domain\Events\UserVerified;
 use Src\Iam\User\Infrastructure\Models\UserModel;
 use Src\Iam\User\Infrastructure\Notifications\WelcomeNotification;
 
 final class SendWelcomeNotification
 {
-    public function handle(UserRegistered $event): void
+    public function handle(UserVerified $event): void
     {
         $user = UserModel::query()->find($event->userId()->value());
 
