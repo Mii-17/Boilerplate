@@ -17,7 +17,7 @@ services:
       - APP_ENV=production
       - APP_DEBUG=false
     volumes:
-      - ./storage:/var/www/html/storage
+      - storage_prod:/var/www/html/storage
     networks:
       - boilerplate_prod_network
     healthcheck:
@@ -150,3 +150,5 @@ volumes:
     name: boilerplate_pgdata_prod
   redisdata_prod:
     name: boilerplate_redisdata_prod
+  storage_prod:
+    name: boilerplate_storage_prod
