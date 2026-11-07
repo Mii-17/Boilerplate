@@ -17,6 +17,7 @@ use Src\Iam\User\Domain\ValueObjects\PasswordHash;
 use Src\Iam\User\Infrastructure\Bus\LaravelEventDispatcherAdapter;
 use Src\Iam\User\Infrastructure\Crypt\LaravelHasherAdapter;
 use Src\Iam\User\Infrastructure\Listeners\SendEmailVerificationNotification;
+use Src\Iam\User\Infrastructure\Listeners\SendWelcomeNotification;
 use Src\Iam\User\Infrastructure\Persistence\DatabaseTransactionManager;
 use Src\Iam\User\Infrastructure\Persistence\EloquentUserRepository;
 
@@ -55,5 +56,6 @@ final class UserServiceProvider extends ServiceProvider
 
         Event::listen(UserRegistered::class, SendEmailVerificationNotification::class);
         Event::listen(UnverifiedUserChangedEmail::class, SendEmailVerificationNotification::class);
+        Event::listen(UserRegistered::class, SendWelcomeNotification::class);
     }
 }
