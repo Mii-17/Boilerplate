@@ -103,3 +103,19 @@ test('cannot verify a user with an expired token', function (): void {
         ->and($user->verificationToken())->not->toBeNull()
         ->and($user->pullDomainEvents())->toBeEmpty();
 });
+
+test('changeUnverifiedEmail generates a new verification token with a renewed expiration date', function (): void {
+    [$user, $token] = createTestUser(email: Email::fromString('old@example.com'));
+    $user->pullDomainEvents();
+
+    $newEmail = Email::fromString('new@example.com');
+    $user->changeUnverifiedEmail($newEmail);
+
+    $newVerificationToken = $user->verificationToken();
+    assert($newVerificationToken instanceof VerificationToken);
+
+    expect($token->value())
+        ->not->toBe($newVerificationToken->value())
+        ->and($newVerificationToken->expiresAt())
+        ->toBeGreaterThan($token->expiresAt());
+});

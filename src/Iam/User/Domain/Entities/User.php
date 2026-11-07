@@ -101,6 +101,7 @@ class User
         }
 
         $this->email = $newEmail;
+        $this->verificationToken = VerificationToken::generate();
 
         $this->recordThat(new UnverifiedUserChangedEmail(
             userId: $this->id,
