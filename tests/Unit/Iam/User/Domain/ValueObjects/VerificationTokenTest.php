@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use DateTimeImmutable;
 use Src\Iam\User\Domain\ValueObjects\VerificationToken;
 
 test('verification token is not expired when created fresh', function (): void {

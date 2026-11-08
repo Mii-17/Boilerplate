@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use DateInterval;
 use Src\Shared\Application\Idempotency\IdempotencyConflictException;
 use Src\Shared\Application\Idempotency\IdempotencyInProgressException;
 use Src\Shared\Application\Idempotency\IdempotencyResult;
