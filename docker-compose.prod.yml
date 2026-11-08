@@ -61,7 +61,7 @@ services:
     networks:
       - boilerplate_prod_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -103,8 +103,10 @@ services:
       retries: 3
       start_period: 10s
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - boilerplate_prod_network
 
@@ -120,17 +122,18 @@ services:
     working_dir: /var/www/html
     env_file:
       - .env.production
-    command: >
-      sh -c "while true; do php artisan schedule:run; sleep 60; done"
+    command: php artisan schedule:work
     healthcheck:
-      test: ["CMD-SHELL", "pgrep -f 'schedule:run' > /dev/null || exit 1"]
+      test: ["CMD-SHELL", "pgrep -f 'schedule:work' > /dev/null || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 10s
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - boilerplate_prod_network
 
