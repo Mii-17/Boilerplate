@@ -88,7 +88,8 @@
             "@composer format",
             "@composer analyse",
             "@composer test"
-        ]
+        ],
+        "test:coverage": "XDEBUG_MODE=coverage php artisan test --coverage --min=90"
     },
     "extra": {
         "laravel": {

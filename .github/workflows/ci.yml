@@ -102,3 +102,12 @@ jobs:
       - name: Run Quality Checks & Tests
         run: |
           composer check
+
+      - name: Run Coverage
+        run: XDEBUG_MODE=coverage php artisan test --coverage --min=90
+
+      - name: Build Production Image
+        run: docker build -f docker/php/Dockerfile.prod -t boilerplate:prod .
+
+      - name: Verify Production Extensions
+        run: docker run --rm boilerplate:prod php -m | grep -i redis
