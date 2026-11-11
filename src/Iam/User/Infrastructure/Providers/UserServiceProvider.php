@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Src\Iam\User\Infrastructure\Providers;
 
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Src\Iam\User\Application\Ports\EventDispatcherInterface;
 use Src\Iam\User\Application\Ports\HasherInterface;
@@ -58,5 +61,9 @@ final class UserServiceProvider extends ServiceProvider
         Event::listen([UserRegistered::class, UnverifiedUserChangedEmail::class], SendEmailVerificationNotification::class);
 
         Event::listen(UserVerified::class, SendWelcomeNotification::class);
+
+        RateLimiter::for('auth', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
+
+        RateLimiter::for('verification', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
     }
 }

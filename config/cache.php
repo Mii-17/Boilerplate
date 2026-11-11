@@ -135,4 +135,6 @@ return [
 
     'serializable_classes' => false,
 
+    'limiter' => env('CACHE_LIMITER_STORE', 'redis'),
+
 ];
