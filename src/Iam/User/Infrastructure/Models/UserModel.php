@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * @property string $id
@@ -22,6 +23,8 @@ use Illuminate\Support\Carbon;
  */
 final class UserModel extends Authenticatable
 {
+    use HasApiTokens;
+
     /** @use HasFactory<UserModelFactory> */
     use HasFactory;
 
