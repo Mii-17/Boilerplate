@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\URL;
 use Src\Iam\User\Domain\ValueObjects\UserId;
+use Src\Iam\User\Infrastructure\Models\UserModel;
 
 use function Pest\Laravel\get;
 
-function signedVerificationUrl(): string
+function signedVerificationUrlWithWrongToken(): string
 {
+    $user = UserModel::factory()->unverified()->create();
+
     return URL::temporarySignedRoute(
         'iam.verification.verify',
         now()->addHour(),
-        [
-            'userId' => UserId::generate()->value(),
-            'token' => str_repeat('a', 64),
-        ],
+        ['userId' => $user->id, 'token' => str_repeat('b', 64)],
     );
 }
 
@@ -28,27 +28,33 @@ function unsignedVerificationUrl(): string
 }
 
 test('allows verification attempts within the rate limit', function (): void {
+    $url = signedVerificationUrlWithWrongToken();
+
     for ($attempt = 0; $attempt < 10; $attempt++) {
-        get(signedVerificationUrl())->assertNoContent();
+        get($url)->assertUnprocessable();
     }
 });
 
 test('blocks verification attempts exceeding the rate limit', function (): void {
+    $url = signedVerificationUrlWithWrongToken();
+
     for ($attempt = 0; $attempt < 10; $attempt++) {
-        get(signedVerificationUrl())->assertNoContent();
+        get($url)->assertUnprocessable();
     }
 
-    $response = get(signedVerificationUrl());
+    $response = get($url);
 
-    $response->assertStatus(429);
+    $response->assertTooManyRequests();
 
     expect($response->headers->has('Retry-After'))->toBeTrue();
 });
 
 test('throttles invalid attempts before validating the signature', function (): void {
+    $url = unsignedVerificationUrl();
+
     for ($attempt = 0; $attempt < 10; $attempt++) {
-        get(unsignedVerificationUrl())->assertForbidden();
+        get($url)->assertForbidden();
     }
 
-    get(unsignedVerificationUrl())->assertStatus(429);
+    get($url)->assertTooManyRequests();
 });
