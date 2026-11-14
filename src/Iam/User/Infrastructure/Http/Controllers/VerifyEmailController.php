@@ -7,6 +7,7 @@ namespace Src\Iam\User\Infrastructure\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Src\Iam\User\Application\DTOs\VerifyEmailCommand;
 use Src\Iam\User\Application\UseCases\VerifyEmailUseCase;
+use Src\Iam\User\Infrastructure\Http\Resources\EmailVerificationResource;
 
 final class VerifyEmailController
 {
@@ -20,10 +21,6 @@ final class VerifyEmailController
             token: $token,
         ));
 
-        return response()->json([
-            'id' => $response->id,
-            'email' => $response->email,
-            'isVerified' => $response->isVerified,
-        ]);
+        return EmailVerificationResource::make($response)->response();
     }
 }

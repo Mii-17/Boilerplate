@@ -6,6 +6,7 @@ namespace Src\Iam\User\Infrastructure\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Src\Iam\User\Infrastructure\Http\Resources\UserResource;
 use Src\Iam\User\Infrastructure\Models\UserModel;
 
 final class ShowAuthenticatedUserController
@@ -16,10 +17,6 @@ final class ShowAuthenticatedUserController
 
         assert($user instanceof UserModel);
 
-        return response()->json([
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-        ]);
+        return UserResource::make($user)->response();
     }
 }

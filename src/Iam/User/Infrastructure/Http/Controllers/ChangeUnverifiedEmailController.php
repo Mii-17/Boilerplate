@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Src\Iam\User\Application\DTOs\ChangeUnverifiedEmailCommand;
 use Src\Iam\User\Application\UseCases\ChangeUnverifiedEmailUseCase;
 use Src\Iam\User\Infrastructure\Http\Requests\ChangeUnverifiedEmailRequest;
+use Src\Iam\User\Infrastructure\Http\Resources\EmailChangeResource;
 use Src\Iam\User\Infrastructure\Models\UserModel;
 
 final class ChangeUnverifiedEmailController
@@ -24,9 +25,6 @@ final class ChangeUnverifiedEmailController
             newEmail: $request->string('email')->toString(),
         ));
 
-        return response()->json([
-            'id' => $response->id,
-            'email' => $response->email,
-        ]);
+        return EmailChangeResource::make($response)->response();
     }
 }

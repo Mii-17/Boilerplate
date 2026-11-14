@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Src\Iam\User\Application\DTOs\LoginUserCommand;
 use Src\Iam\User\Application\UseCases\LoginUserUseCase;
 use Src\Iam\User\Infrastructure\Http\Requests\LoginUserRequest;
+use Src\Iam\User\Infrastructure\Http\Resources\LoginResource;
 use Src\Iam\User\Infrastructure\Models\UserModel;
 
 final class LoginUserController
@@ -26,9 +27,6 @@ final class LoginUserController
             ->createToken('api')
             ->plainTextToken;
 
-        return response()->json([
-            'token' => $token,
-            'token_type' => 'Bearer',
-        ]);
+        return LoginResource::make($token)->response();
     }
 }

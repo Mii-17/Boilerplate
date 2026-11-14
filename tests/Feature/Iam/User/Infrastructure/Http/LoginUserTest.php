@@ -33,8 +33,10 @@ test('authenticates protected endpoints with the issued token', function (): voi
 
     getJson('/api/user', ['Authorization' => "Bearer {$token}"])
         ->assertOk()
+        ->assertJsonStructure(['id', 'name', 'email'])
         ->assertJsonPath('id', $user->id)
-        ->assertJsonPath('email', $user->email);
+        ->assertJsonPath('email', $user->email)
+        ->assertJsonMissingPath('data');
 });
 
 test('rejects invalid credentials', function (array $payload): void {

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Src\Iam\User\Infrastructure\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Src\Iam\User\Application\DTOs\RegisterUserCommand;
 use Src\Iam\User\Application\UseCases\RegisterUserUseCase;
 use Src\Iam\User\Infrastructure\Http\Requests\RegisterUserRequest;
+use Src\Iam\User\Infrastructure\Http\Resources\UserResource;
 
 final class RegisterUserController
 {
@@ -21,10 +23,8 @@ final class RegisterUserController
             plainPassword: $request->string('password')->toString(),
         ));
 
-        return response()->json([
-            'id' => $response->id,
-            'name' => $response->name,
-            'email' => $response->email,
-        ], 201);
+        return UserResource::make($response)
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 }
