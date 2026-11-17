@@ -8,7 +8,6 @@ use Src\Iam\User\Application\UseCases\LoginUserUseCase;
 use Src\Iam\User\Application\UseCases\RegisterUserUseCase;
 use Src\Iam\User\Domain\Entities\User;
 use Src\Iam\User\Domain\Exceptions\InvalidCredentialsException;
-use Src\Iam\User\Domain\Exceptions\UserNotVerifiedException;
 use Src\Iam\User\Domain\ValueObjects\PasswordHash;
 use Src\Iam\User\Domain\ValueObjects\VerificationToken;
 use Src\Shared\Domain\ValueObjects\Email;
@@ -119,16 +118,17 @@ test('login fails with invalid credentials when user does not exist', function (
         ->toThrow(InvalidCredentialsException::class);
 });
 
-test('login fails when user email is not verified', function (): void {
+test('login succeeds when user email is not verified', function (): void {
     [$useCase, $repository, $registerUseCase] = createLoginUserUseCaseContext();
 
-    createUser($registerUseCase, $repository, false);
+    $savedUser = createUser($registerUseCase, $repository, false);
 
     $email = 'user@example.com';
     $password = 'Secret123!';
 
     $loginCommand = new LoginUserCommand($email, $password);
 
-    expect(fn () => $useCase->execute($loginCommand))
-        ->toThrow(UserNotVerifiedException::class);
+    $response = $useCase->execute($loginCommand);
+
+    expect($response->id)->toBe($savedUser->id()->value());
 });

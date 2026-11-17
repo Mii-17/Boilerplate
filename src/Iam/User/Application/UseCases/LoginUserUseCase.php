@@ -9,7 +9,6 @@ use Src\Iam\User\Application\DTOs\LoginUserResponse;
 use Src\Iam\User\Application\Ports\HasherInterface;
 use Src\Iam\User\Domain\Entities\User;
 use Src\Iam\User\Domain\Exceptions\InvalidCredentialsException;
-use Src\Iam\User\Domain\Exceptions\UserNotVerifiedException;
 use Src\Iam\User\Domain\Repositories\UserRepositoryInterface;
 use Src\Iam\User\Domain\ValueObjects\PasswordAttempt;
 use Src\Iam\User\Domain\ValueObjects\PasswordHash;
@@ -39,10 +38,6 @@ final readonly class LoginUserUseCase
         $valid = $this->hasher->verify($attempt, $hash);
         if (! $user instanceof User || ! $valid) {
             throw new InvalidCredentialsException;
-        }
-
-        if (! $user->isVerified()) {
-            throw new UserNotVerifiedException($user->email());
         }
 
         return LoginUserResponse::fromEntity($user);

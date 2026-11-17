@@ -50,15 +50,15 @@ test('rejects invalid credentials', function (array $payload): void {
     'unknown email' => [['email' => 'nobody@example.com', 'password' => 'Password123!']],
 ]);
 
-test('rejects login when the email is not verified', function (): void {
+test('allows login when the email is not verified', function (): void {
     UserModel::factory()->unverified()->create(['email' => 'user@example.com']);
 
     postJson('/api/login', [
         'email' => 'user@example.com',
         'password' => 'Password123!',
     ])
-        ->assertForbidden()
-        ->assertJsonStructure(['message']);
+        ->assertOk()
+        ->assertJsonStructure(['token', 'token_type']);
 });
 
 test('rejects invalid login payloads', function (array $payload, string $field): void {

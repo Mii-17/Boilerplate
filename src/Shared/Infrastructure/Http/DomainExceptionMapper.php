@@ -12,7 +12,6 @@ use Src\Iam\User\Domain\Exceptions\UserAlreadyExistsException;
 use Src\Iam\User\Domain\Exceptions\UserAlreadyVerifiedException;
 use Src\Iam\User\Domain\Exceptions\UserEmailAlreadyTakenException;
 use Src\Iam\User\Domain\Exceptions\UserNotFoundException;
-use Src\Iam\User\Domain\Exceptions\UserNotVerifiedException;
 use Src\Iam\User\Domain\ValueObjects\Exceptions\InvalidPlainPasswordException;
 use Src\Iam\User\Domain\ValueObjects\Exceptions\InvalidVerificationTokenException;
 
@@ -33,11 +32,6 @@ final class DomainExceptionMapper
         $exceptions->renderable(fn (InvalidCredentialsException $exception): JsonResponse => response()->json(
             ['message' => $exception->getMessage()],
             Response::HTTP_UNAUTHORIZED,
-        ));
-
-        $exceptions->renderable(fn (UserNotVerifiedException $exception): JsonResponse => response()->json(
-            ['message' => $exception->getMessage()],
-            Response::HTTP_FORBIDDEN,
         ));
 
         $exceptions->renderable(fn (UserNotFoundException $exception): JsonResponse => response()->json(
