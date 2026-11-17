@@ -30,14 +30,14 @@ final readonly class ChangeUnverifiedEmailUseCase
         $user = $this->userRepository->findById($userId);
 
         if (! $user instanceof User) {
-            throw new UserNotFoundException($command->id);
+            throw UserNotFoundException::withId($command->id);
         }
 
         $newEmail = Email::fromString($command->newEmail);
         $existingUser = $this->userRepository->findByEmail($newEmail);
 
         if ($existingUser instanceof User && ! $existingUser->id()->equals($user->id())) {
-            throw new UserEmailAlreadyTakenException($newEmail->value());
+            throw UserEmailAlreadyTakenException::withEmail($newEmail->value());
         }
 
         $this->transactionManager->transaction(function () use ($user, $newEmail): void {

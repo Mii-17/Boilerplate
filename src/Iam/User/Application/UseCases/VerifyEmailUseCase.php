@@ -28,7 +28,7 @@ final readonly class VerifyEmailUseCase
         $user = $this->userRepository->findById($userId);
 
         if (! $user instanceof User) {
-            throw new UserNotFoundException($command->userId);
+            throw UserNotFoundException::withId($command->userId);
         }
 
         $this->transactionManager->transaction(function () use ($user, $command): void {

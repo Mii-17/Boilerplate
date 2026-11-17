@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\URL;
 use Src\Iam\User\Domain\ValueObjects\UserId;
 use Src\Iam\User\Infrastructure\Models\UserModel;
 
-use function Pest\Laravel\get;
+use function Pest\Laravel\getJson;
 
 function signedVerificationUrlWithWrongToken(): string
 {
@@ -31,7 +31,7 @@ test('allows verification attempts within the rate limit', function (): void {
     $url = signedVerificationUrlWithWrongToken();
 
     for ($attempt = 0; $attempt < 10; $attempt++) {
-        get($url)->assertUnprocessable();
+        getJson($url)->assertUnprocessable();
     }
 });
 
@@ -39,10 +39,10 @@ test('blocks verification attempts exceeding the rate limit', function (): void 
     $url = signedVerificationUrlWithWrongToken();
 
     for ($attempt = 0; $attempt < 10; $attempt++) {
-        get($url)->assertUnprocessable();
+        getJson($url)->assertUnprocessable();
     }
 
-    $response = get($url);
+    $response = getJson($url);
 
     $response->assertTooManyRequests();
 
@@ -53,8 +53,8 @@ test('throttles invalid attempts before validating the signature', function (): 
     $url = unsignedVerificationUrl();
 
     for ($attempt = 0; $attempt < 10; $attempt++) {
-        get($url)->assertForbidden();
+        getJson($url)->assertForbidden();
     }
 
-    get($url)->assertTooManyRequests();
+    getJson($url)->assertTooManyRequests();
 });

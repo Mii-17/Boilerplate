@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Src\Iam\User\Infrastructure\Models\UserModel;
 use Src\Iam\User\Infrastructure\Notifications\WelcomeNotification;
+use Tests\Support\SignedVerificationUrl;
 
 use function Pest\Laravel\getJson;
 
@@ -17,7 +17,7 @@ test('verifies the email with a valid signed link', function (): void {
     $token = $user->verification_token;
     assert(is_string($token));
 
-    getJson(getSignedVerificationUrl($user, $token))
+    getJson(SignedVerificationUrl::forUser($user, $token))
         ->assertOk()
         ->assertJson([
             'id' => $user->id,
@@ -29,15 +29,6 @@ test('verifies the email with a valid signed link', function (): void {
 
     Notification::assertSentTo($user, WelcomeNotification::class);
 });
-
-function getSignedVerificationUrl(UserModel $user, string $token, ?DateTimeInterface $expiresAt = null): string
-{
-    return URL::temporarySignedRoute(
-        'iam.verification.verify',
-        $expiresAt ?? now()->addHour(),
-        ['userId' => $user->id, 'token' => $token],
-    );
-}
 
 test('rejects a verification link without a valid signature', function (): void {
     $user = UserModel::factory()->unverified()->create();
@@ -53,14 +44,14 @@ test('rejects a verification link with an expired signature', function (): void 
     $token = $user->verification_token;
     assert(is_string($token));
 
-    getJson(getSignedVerificationUrl($user, $token, now()->subMinute()))
+    getJson(SignedVerificationUrl::forUser($user, $token, now()->subMinute()))
         ->assertForbidden();
 });
 
 test('rejects an invalid verification token', function (): void {
     $user = UserModel::factory()->unverified()->create();
 
-    getJson(getSignedVerificationUrl($user, 'not-the-real-token'))
+    getJson(SignedVerificationUrl::forUser($user, 'not-the-real-token'))
         ->assertUnprocessable()
         ->assertJson(['message' => 'Invalid verification token.']);
 });
@@ -72,23 +63,18 @@ test('rejects an expired verification token', function (): void {
     $token = $user->verification_token;
     assert(is_string($token));
 
-    getJson(getSignedVerificationUrl($user, $token))
+    getJson(SignedVerificationUrl::forUser($user, $token))
         ->assertUnprocessable()
         ->assertJson(['message' => 'Verification token has expired.']);
 });
 
 test('returns 404 when the user does not exist', function (): void {
-    $url = URL::temporarySignedRoute(
-        'iam.verification.verify',
-        now()->addHour(),
-        ['userId' => Str::uuid()->toString(), 'token' => 'irrelevant'],
-    );
-
-    getJson($url)->assertNotFound();
+    getJson(SignedVerificationUrl::for(Str::uuid()->toString(), 'irrelevant'))
+        ->assertNotFound();
 });
 
 test('rejects verification when the email is already verified', function (): void {
     $user = UserModel::factory()->create();
 
-    getJson(getSignedVerificationUrl($user, 'irrelevant'))->assertConflict();
+    getJson(SignedVerificationUrl::forUser($user, 'irrelevant'))->assertConflict();
 });
