@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "mii-17/iam-boilerplate",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "IAM boilerplate with DDD, hexagonal architecture and TDD",
     "keywords": [
         "laravel",
         "framework"
