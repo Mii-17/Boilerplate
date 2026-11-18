@@ -6,7 +6,9 @@ namespace Src\Iam\User\Infrastructure\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\Iam\User\Application\DTOs\AuthTokenResponse;
 
+/** @property AuthTokenResponse $resource */
 final class LoginResource extends JsonResource
 {
     /**
@@ -14,12 +16,12 @@ final class LoginResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        /** @var string $token */
-        $token = $this->resource;
+        /** @var AuthTokenResponse $resource */
+        $resource = $this->resource;
 
         return [
-            'token' => $token,
-            'token_type' => 'Bearer',
+            'token' => $resource->token,
+            'token_type' => $resource->tokenType,
         ];
     }
 }

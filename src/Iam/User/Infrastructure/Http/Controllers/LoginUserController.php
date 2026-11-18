@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Src\Iam\User\Infrastructure\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Src\Iam\User\Application\DTOs\AuthTokenResponse;
 use Src\Iam\User\Application\DTOs\LoginUserCommand;
 use Src\Iam\User\Application\UseCases\LoginUserUseCase;
 use Src\Iam\User\Infrastructure\Http\Requests\LoginUserRequest;
@@ -27,6 +28,6 @@ final class LoginUserController
             ->createToken('api')
             ->plainTextToken;
 
-        return LoginResource::make($token)->response();
+        return LoginResource::make(new AuthTokenResponse($token))->response();
     }
 }

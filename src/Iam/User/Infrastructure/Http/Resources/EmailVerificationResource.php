@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Src\Iam\User\Application\DTOs\VerifyEmailResponse;
 
+/** @property VerifyEmailResponse $resource */
 final class EmailVerificationResource extends JsonResource
 {
     /**

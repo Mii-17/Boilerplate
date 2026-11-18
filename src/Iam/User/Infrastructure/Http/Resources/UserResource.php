@@ -9,6 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Src\Iam\User\Application\DTOs\RegisterUserResponse;
 use Src\Iam\User\Infrastructure\Models\UserModel;
 
+/** @property RegisterUserResponse $resource */
 final class UserResource extends JsonResource
 {
     /**
