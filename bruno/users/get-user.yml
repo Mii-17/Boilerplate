@@ -1,0 +1,70 @@
+info:
+  name: Get user
+  type: http
+  seq: 1
+  tags:
+    - ShowAuthenticatedUser
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/user"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("returns 200", function () {
+          expect(res.status).to.equal(200);
+        });
+
+        test("returns the authenticated user", function () {
+          expect(res.body.id).to.be.a("string");
+          expect(res.body.name).to.equal("Bruno User");
+          expect(res.body.email).to.equal(bru.getVar("email"));
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+examples:
+  - name: 200 Response
+    description: "`UserResource`"
+    request:
+      url: "{{baseUrl}}/api/user"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "id": "",
+            "name": "",
+            "email": ""
+          }
+  - name: 401 Response
+    description: Unauthenticated
+    request:
+      url: "{{baseUrl}}/api/user"
+      method: GET
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": ""
+          }

@@ -1,0 +1,15 @@
+name: local
+variables:
+  - name: baseUrl
+    value: http://localhost:8080
+    enabled: true
+  - name: email
+    value: bruno@example.com
+    enabled: true
+  - name: password
+    value: Password123!
+    enabled: true
+  - name: token
+    value: ""
+    enabled: true
+    secret: true

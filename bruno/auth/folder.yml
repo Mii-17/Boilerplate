@@ -1,0 +1,14 @@
+info:
+  name: Auth
+  type: folder
+  seq: 1
+
+request:
+  auth: inherit
+
+docs:
+  content: |-
+    Public registration and login.
+
+    Register creates a unique email and idempotency key; login saves the bearer token used by Users.
+  type: text/markdown

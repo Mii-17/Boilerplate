@@ -1,0 +1,18 @@
+info:
+  name: Verification
+  type: folder
+  seq: 3
+
+docs:
+  content: |-
+    # Email verification
+
+    Documentation only. There is no executable request in this folder.
+
+    Endpoint: GET /iam/email/verify/{userId}/{token}
+
+    The URL is signed by Laravel with `URL::temporarySignedRoute()` and sent by email.
+    It can be inspected in Mailpit at http://localhost:8025 after registering a user.
+
+    A hand-written URL cannot be replayed because the signature check will reject it.
+  type: text/markdown

@@ -1,0 +1,16 @@
+info:
+  name: Users
+  type: folder
+  seq: 2
+
+request:
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+docs:
+  content: |-
+    Authenticated user requests.
+
+    All requests in this folder inherit the bearer token saved by auth/login.
+  type: text/markdown

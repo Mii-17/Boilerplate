@@ -1,0 +1,28 @@
+opencollection: 1.0.0
+
+info:
+  name: IAM API
+  version: 0.0.1
+
+request:
+  headers:
+    - name: Accept
+      value: application/json
+    - name: Content-Type
+      value: application/json
+
+docs:
+  content: |-
+    # IAM API
+
+    Run in order: auth/register -> auth/login -> users/get-user -> users/change-email.
+
+    Verification is documented only; the signed URL must be read from Mailpit.
+  type: text/markdown
+bundled: false
+extensions:
+  bruno:
+    defaultEnvironment: local
+    ignore:
+      - node_modules
+      - .git
